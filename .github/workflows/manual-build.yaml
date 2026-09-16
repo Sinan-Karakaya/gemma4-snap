@@ -9,7 +9,7 @@ jobs:
       matrix:
         include:
           - arch: arm64
-            runner: [self-hosted, arm64, large-extra]
+            runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
