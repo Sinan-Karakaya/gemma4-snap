@@ -14,13 +14,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install snapcraft
+        run: sudo snap install snapcraft --classic
+
       - name: Init build env (fetch model weights from HF)
         run: |
           sudo apt-get update -qq && sudo apt-get install -y python3-pip
           make init
 
       - name: Build snap + components
-        run: ./dev/build.sh || make build
+        run: |
+          PATH="/snap/bin:$PATH"
+          ./dev/build.sh || make build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
