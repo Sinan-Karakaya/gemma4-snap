@@ -14,8 +14,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install snapcraft
-        run: sudo snap install snapcraft --classic
+      - name: Install snapcraft + LXD
+        run: |
+          sudo snap install snapcraft --classic
+          sudo snap install lxd
+          sudo lxd init --auto
+          sudo usermod -aG lxd $USER
+          # refresh group membership for this job
+          sg lxd -c 'lxc version'
 
       - name: Init build env (fetch model weights from HF)
         run: |
@@ -25,7 +31,7 @@ jobs:
       - name: Build snap + components
         run: |
           PATH="/snap/bin:$PATH"
-          ./dev/build.sh || make build
+          sg lxd -c './dev/build.sh || make build'
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
