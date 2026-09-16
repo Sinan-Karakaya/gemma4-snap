@@ -1,0 +1,32 @@
+name: Manual Build (branch)
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: [self-hosted, arm64, large-extra]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Init build env (fetch model weights from HF)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y python3-pip
+          make init
+
+      - name: Build snap + components
+        run: ./dev/build.sh || make build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gemma4-arm64-hexagon-${{ github.sha }}
+          path: |
+            *.snap
+            *.comp
+          if-no-files-found: error
